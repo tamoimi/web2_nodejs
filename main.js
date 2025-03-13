@@ -14,7 +14,8 @@ var app = http.createServer(function (request, response) {
     return response.writeHead(204);
   }
   response.writeHead(200);
-  var template = `
+  fs.readFile(`data/${queryData.id}`, "utf-8", function (err, description) {
+    var template = `
   <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -24,6 +25,7 @@ var app = http.createServer(function (request, response) {
   </head>
   <body>
     <h1><a href="/">${title}</a></h1>
+    <h1>${description}</h1>
     <ol>
       <li><a href="/?id=HTML">HTML</a></li>
       <li><a href="/?id=CSS">CSS</a></li>
@@ -33,7 +35,8 @@ var app = http.createServer(function (request, response) {
 </html>
 
   `;
-  response.end(template);
+    response.end(template);
+  });
 });
 
 app.listen(3000);
