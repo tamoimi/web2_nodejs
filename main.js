@@ -3,7 +3,7 @@ var fs = require("fs");
 var url = require("url");
 var qs = require("querystring");
 
-function templateHTML(title, list, body) {
+function templateHTML(title, list, body, control) {
   return `
   <!DOCTYPE html>
 <html>
@@ -14,7 +14,7 @@ function templateHTML(title, list, body) {
   <body>
     <h1><a href="/">WEB</a></h1>
     ${list}
-    <a href="/create">Create</a>
+    ${control}
     ${body}
   </body>
 </html>
@@ -45,7 +45,8 @@ var app = http.createServer(function (request, response) {
         var template = templateHTML(
           title,
           list,
-          `<h2>${title}</h2>${description}`
+          `<h2>${title}</h2>${description}`,
+          `<a href="/create">Create</a>`
         );
         response.writeHead(200);
         response.end(template);
@@ -61,7 +62,8 @@ var app = http.createServer(function (request, response) {
             var template = templateHTML(
               title,
               list,
-              `<h2>${title}</h2>${description}`
+              `<h2>${title}</h2>${description}`,
+              `<a href="/create">Create</a> <a href="/update?id=${title}">Update</a>`
             );
             response.writeHead(200);
             response.end(template);
@@ -80,7 +82,8 @@ var app = http.createServer(function (request, response) {
         <p><input type="text" name="title" placeholder="title"></p>
                 <p><textarea name="description" placeholder="description"></textarea></p>
                    <p><input type="submit"></p>
-        </form>`
+        </form>`,
+        ``
       );
       response.writeHead(200);
       response.end(template);
@@ -95,9 +98,11 @@ var app = http.createServer(function (request, response) {
       var post = qs.parse(body);
       var title = post.title;
       var description = post.description;
+      fs.writeFile(`data/${title}`, description, `utf-8`, function (err) {
+        response.writeHead(302, { location: `/?id=${title}` });
+        response.end();
+      });
     });
-    response.writeHead(200);
-    response.end("success");
   } else {
     response.writeHead(400);
     response.end("Not found");
